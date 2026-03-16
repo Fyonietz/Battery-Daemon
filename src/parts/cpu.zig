@@ -1,5 +1,46 @@
 const std = @import("std");
+const linux = std.os.linux;
+const posix = std.posix;
+pub const cpu_fields = struct {
+    user: u64,
+    nice: u64,
+    system: u64,
+    idle: u64,
+    iowait: u64,
+    irq: u64,
+    softirq: u64,
+    steal: u64,
+};
+pub fn parse_u64(s: []const u8) u64 {
+    return std.fmt.parseInt(u64, s, 10) catch 0;
+}
+pub fn get() !f64 {
+    const fd = try posix.open("/proc/stat", .{}, 0);
+    defer posix.close(fd);
 
-pub fn message() void {
-    std.debug.print("from {s}\n",.{"cpu"});
+    var buffer: [4056]u8 = undefined;
+    const n = try posix.read(fd, &buffer);
+    if (n >= buffer.len) return error.BufferTooSmall;
+
+    const line = buffer[0..n];
+    if (!std.mem.startsWith(u8, line, "cpu")) return error.InvalidFormat;
+    var pos: usize = 3;
+
+    var fields: cpu_fields = undefined;
+    inline for (std.meta.fields(cpu_fields)) |f| {
+        // skip spaces
+        while (pos < n and buffer[pos] == ' ') : (pos += 1) {}
+        // find end of token
+        const start = pos;
+        while (pos < n and buffer[pos] != ' ' and buffer[pos] != '\n') : (pos += 1) {}
+        @field(fields, f.name) = parse_u64(buffer[start..pos]);
+        pos += 1; // skip the delimiter
+    }
+
+    const total: f64 = @floatFromInt(fields.user + fields.nice + fields.system + fields.idle +
+        fields.iowait + fields.irq + fields.softirq + fields.steal);
+    const idle: f64 = @floatFromInt(fields.idle + fields.iowait);
+
+    if (total == 0.0) return 0.0;
+    return ((total - idle) / total) * 100.0;
 }
