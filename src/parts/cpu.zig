@@ -14,7 +14,7 @@ pub const cpu_fields = struct {
 pub fn parse_u64(s: []const u8) u64 {
     return std.fmt.parseInt(u64, s, 10) catch 0;
 }
-pub fn get() !f64 {
+pub fn get_usage() !f32 {
     const fd = try posix.open("/proc/stat", .{}, 0);
     defer posix.close(fd);
 
@@ -37,9 +37,9 @@ pub fn get() !f64 {
         pos += 1; // skip the delimiter
     }
 
-    const total: f64 = @floatFromInt(fields.user + fields.nice + fields.system + fields.idle +
+    const total: f32 = @floatFromInt(fields.user + fields.nice + fields.system + fields.idle +
         fields.iowait + fields.irq + fields.softirq + fields.steal);
-    const idle: f64 = @floatFromInt(fields.idle + fields.iowait);
+    const idle: f32 = @floatFromInt(fields.idle + fields.iowait);
 
     if (total == 0.0) return 0.0;
     return ((total - idle) / total) * 100.0;
