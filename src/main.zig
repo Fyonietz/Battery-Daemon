@@ -6,6 +6,7 @@ const notify = @import("notify.zig");
 
 pub const Warnings = struct{
     high_temp:bool = false,
+    full_battery:bool = false,
     low_battery:bool = false,
 };
 
@@ -23,7 +24,6 @@ pub fn main() !void {
         cpu_temp = try cpu.get_temp();
         battery_percentage = try battery.get_percentage();
         status = try battery.get_status();
-        std.debug.print("CPU Usage : {d}\nCPU Temp : {d}\nBattery Level : {d}\n", .{cpu_usage,cpu_temp,battery_percentage});
         
         //Condition When Charging and Reach High Temp
         if(status == .charging and cpu_temp > 50.0 ){
@@ -47,6 +47,17 @@ pub fn main() !void {
             }
         }else{
             Warning.low_battery= false;
+        }
+
+        //Condition When Battery Full Charge
+        if(status == .charging and battery_percentage == 100){
+            if(!Warning.full_battery){
+            cmd = &[_][]const u8{ "notify-send", "Battery-Daemon", "Battery Full!" };
+            try notify.send(allocator, cmd);   
+            Warning.full_battery = true;
+            }
+        }else{
+            Warning.full_battery = false;
         }
         std.posix.nanosleep(1,0);
     }
