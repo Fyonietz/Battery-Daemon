@@ -23,7 +23,7 @@ pub fn get_status() !BatteryStatus {
     return .unknown;
 }
 
-pub fn get_percentage() !f32{
+pub fn get_percentage() !i32{
     const fd = try posix.open("/sys/class/power_supply/BAT0/capacity", .{}, 0);
     defer posix.close(fd);
 
@@ -32,6 +32,5 @@ pub fn get_percentage() !f32{
     if (n >= buffer.len) return error.buffertoosmall;
     const slice = std.mem.trim(u8,buffer[0..n],&std.ascii.whitespace);
     const slice_int = try std.fmt.parseInt(i32,slice,10);
-    const result = @as(f32,@floatFromInt(slice_int));
-    return result;
+    return slice_int;
 }
