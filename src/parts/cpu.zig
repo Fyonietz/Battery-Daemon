@@ -44,3 +44,36 @@ pub fn get_usage() !f32 {
     if (total == 0.0) return 0.0;
     return ((total - idle) / total) * 100.0;
 }
+
+
+
+pub fn get_temp() !f32 {
+    const fd = try posix.open("/sys/class/hwmon/hwmon4/temp1_input", .{}, 0);
+    defer posix.close(fd);
+
+    var buffer: [512]u8 = undefined;
+    const n = try posix.read(fd, &buffer);
+    if (n >= buffer.len) return error.BufferTooSmall;
+    const slice = std.mem.trim(u8,buffer[0..n],&std.ascii.whitespace);
+
+    const milidegrees = try std.fmt.parseInt(i32,slice,10);
+
+    const degrees = @as(f32,@floatFromInt(milidegrees)) / 1000.0;
+    return degrees;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
