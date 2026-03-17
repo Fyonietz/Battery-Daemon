@@ -54,7 +54,7 @@ pub fn get_temp() !f32 {
     const fd = try posix.open("/sys/class/hwmon/hwmon4/temp1_input", .{}, 0);
     defer posix.close(fd);
 
-    var buffer: [512]u8 = undefined;
+    var buffer: [7]u8 = undefined;
     const n = try posix.read(fd, &buffer);
     if (n >= buffer.len) return error.BufferTooSmall;
     const slice = std.mem.trim(u8,buffer[0..n],&std.ascii.whitespace);
