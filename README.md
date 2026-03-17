@@ -1,67 +1,55 @@
 # Battery-Daemon
 
-Charging Parameters
+# Charging Parameters
 
-Battery Level
+IF Battery Level < 20% THEN
+    STOP Charging (minimum battery level not reached)
+ELSE IF Battery Level > 90% THEN
+    STOP Charging (maximum battery level reached, preserving battery health)
+ELSE IF Battery Level == 100% THEN
+    STOP Charging (avoid overcharging)
 
-Minimum: 20% (Battery should be at least 20% before charging).
+IF Temperature < 0°C THEN
+    STOP Charging (temperature too low for safe charging)
+ELSE IF Temperature > 35°C THEN
+    STOP Charging (temperature too high for safe charging)
 
-Maximum: 90% (It's recommended to stop charging at 80%-90% to preserve battery health).
+IF Power Source == "Unplugged" THEN
+    STOP Charging (charging only allowed when plugged in)
 
-Threshold for Stopping: If battery reaches 100%, consider stopping charging or slowing it down to avoid overcharging.
+IF System Load > 80% THEN
+    SLOW Charging (reduce charging speed to avoid heat generation)
+    IF System Load > 90% THEN
+        PAUSE Charging (pause charging to prevent overheating)
 
-Temperature
+IF Battery Health < 80% THEN
+    STOP Charging at 80% (battery health too low, preserve lifespan)
 
-Safe Range: 0°C to 35°C (32°F to 95°F).
+# Discharging Parameters
 
-If above 35°C: Stop charging to avoid overheating.
+IF Battery Level < 20% THEN
+    STOP Discharging (minimum battery level reached)
+ELSE IF Battery Level > 90% THEN
+    STOP Discharging (maximum discharge level reached)
+ELSE IF Battery Level == 10% THEN
+    START Charging (battery level too low, need to charge)
 
-If below 0°C: Stop charging because lithium batteries can get damaged at low temperatures.
+IF Temperature < 0°C THEN
+    STOP Discharging (temperature too low for safe discharging)
+ELSE IF Temperature > 35°C THEN
+    STOP Discharging (temperature too high for safe discharging)
 
-Power Source
+IF System Load > 80% THEN
+    SLOW Discharging (reduce discharge speed to avoid additional heat)
+    IF System Load > 90% THEN
+        PAUSE Discharging (pause discharging to prevent overheating)
 
-Plugged In (AC Power): Charging can proceed, but temperature needs to be monitored.
+IF Battery Health < 80% THEN
+    AVOID Discharging Below 20% (to preserve battery lifespan)
 
-Unplugged: Charging should only occur if the device is plugged into the power source (i.e., AC power).
+# Device Usage
 
-System Load
-
-CPU/Device Load: If your system is running high-performance tasks (e.g., gaming, video editing), the charging rate can be reduced to avoid excessive heat. You might want to pause charging if the system is under heavy load.
-
-Battery Health:
-
-Monitor the cycle count and battery wear.
-
-If the battery health is poor (e.g., below 80% capacity), stop charging once it hits 80% to extend battery life.
-
-Discharging Parameters
-
-Battery Level
-
-Minimum: Avoid discharging below 20% to prevent deep discharge, which can reduce battery life.
-
-Maximum: It’s fine to discharge until 90% (this is typical for regular use).
-
-Threshold for Stopping: If the battery drops to 10% or lower, you should start charging it again.
-
-Temperature
-
-Safe Range: 0°C to 35°C (32°F to 95°F).
-
-If above 35°C: Stop discharging as the battery may overheat.
-
-If below 0°C: Avoid discharging as the battery may be damaged in cold conditions.
-
-System Load
-
-High Load: If the system is using a lot of power, discharging will cause more heat. You can slow down discharging or pause it if the CPU is under heavy usage (over 80-90% load).
-
-Battery Health:
-
-Check if the battery health is below 80% (for example, if cycle count is high or the capacity is degraded). In this case, try to avoid discharging it too low (below 20%).
-
-Device Usage:
-
-Idle Usage: If the device is idle or lightly used, it's fine to discharge at normal rates.
-
-Heavy Usage: During intensive tasks (e.g., gaming or compiling), the system may naturally discharge faster. If discharging too quickly, it could stress the battery, so reducing load may be a good idea.
+IF Device is Idle THEN
+    NORMAL Discharging Rate (battery can discharge normally)
+ELSE IF Device is Under Heavy Usage THEN
+    REDUCE Discharge Rate (heavy usage increases rate of discharge, manage carefully)

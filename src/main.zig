@@ -21,5 +21,11 @@ pub fn main() !void {
     // cmd = &[_][]const u8{ "notify-send", "Info", msg };
     cmd = &[_][]const u8{ "zenity", "--warning", msg };
     try notify.send(allocator, cmd);
-    
+    const status = try battery.get_status();
+    switch (status) {
+        .charging => std.debug.print("Plugged in, charging\n", .{}),
+        .discharging => std.debug.print("On battery power\n", .{}),
+        .full => std.debug.print("Fully charged\n", .{}),
+        .unknown => std.debug.print("Can't determine status\n", .{}),
+    }
 }
