@@ -42,7 +42,10 @@ pub fn get_usage() !f32 {
     const idle: f32 = @floatFromInt(fields.idle + fields.iowait);
 
     if (total == 0.0) return 0.0;
-    return ((total - idle) / total) * 100.0;
+    const raw = ((total-idle) / total) * 100.0;
+
+    const rounded =@round(raw*100.0) / 100.0;
+    return rounded;
 }
 
 
@@ -59,7 +62,8 @@ pub fn get_temp() !f32 {
     const milidegrees = try std.fmt.parseInt(i32,slice,10);
 
     const degrees = @as(f32,@floatFromInt(milidegrees)) / 1000.0;
-    return degrees;
+    const rounded = @round(degrees*100.0) / 100.0;
+    return rounded;
 }
 
 

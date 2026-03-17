@@ -16,9 +16,10 @@ pub fn main() !void {
         std.posix.nanosleep(1, 1000);
         break;
     }
-    const msg = try std.fmt.allocPrint(allocator, "CPU Usage:{d:}%", .{cpu_usage});
+    const msg = try std.fmt.allocPrint(allocator, "--text=CPU Usage : {d}%\nCPU Temp:{d}\n", .{cpu_usage,cpu_temp});
     defer allocator.free(msg);
-    cmd = &[_][]const u8{ "notify-send", "Info", msg };
+    // cmd = &[_][]const u8{ "notify-send", "Info", msg };
+    cmd = &[_][]const u8{ "zenity", "--warning", msg };
     try notify.send(allocator, cmd);
     
 }
